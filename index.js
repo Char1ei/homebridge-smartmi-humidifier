@@ -319,28 +319,35 @@ MiHumidifier.prototype = {
                 });
             }.bind(this))
             .on('set', function (value, callback) {
-                that.log.debug("\trelativeHumidityHumidifierThresholdCharacteristic set Value: " + value + "***!!!***");
+                that.log.debug("\trelativeHumidityHumidifierThresholdCharacteristic set Value: " + value + " ***!!!***");
 
                 if (value > 0 && value <= 40) {
                     value = 40;
                 } else if (value > 80 && value <= 100) {
                     value = 80;
                 }
+                that.log.debug("trelativeHumidityHumidifierThresholdCharacteristic value: " + value);
                 that.device.call("set_limit_hum", [value]).then(result => {
+                    that.log.debug("\t\trelativeHumidityHumidifierThresholdCharacteristic set_limit_hum Result: " + result);
                     if (result[0] === "ok") {
+                        that.log.debug("\t\t\tresult[0] === 'ok'");
+                        // power on if set humidifier threshold > current humidity
+                        // if (value > currentHumidityCharacteristic.value) {
+                        //     that.log.debug("\t\t\t\tvalue > currentHumidityCharacteristic.value");
+                        //     that.device.call("set_power", ["on"]).then(result => {
+                        //         if (result[0] === "ok") {
+                        //             that.log.debug("\t\t\t\trelativeHumidityHumidifierThresholdCharacteristic set_power ok");
+                        //             callback(null);
+                        //         } else {
+                        //             that.log.debug("\t\t\t\trelativeHumidityHumidifierThresholdCharacteristic set_power Error: " + result[0]);
+                        //             callback(new Error(result[0]));
+                        //         }
+                        //     }).catch(function (err) {
+                        //         that.log.debug("\trelativeHumidityHumidifierThresholdCharacteristic set Error: " + err);
+                        //         callback(err);
+                        //     });
+                        // }
                         callback(null);
-                        if (value > currentHumidityCharacteristic.value) {
-                            that.device.call("set_power", ["on"]).then(result => {
-                                if (result[0] === "ok") {
-                                    callback(null);
-                                } else {
-                                    callback(new Error(result[0]));
-                                }
-                            }).catch(function (err) {
-                                that.log.debug("\trelativeHumidityHumidifierThresholdCharacteristic set Error: " + err);
-                                callback(err);
-                            });
-                        }
                     } else {
                         callback(new Error(result[0]));
                     }
